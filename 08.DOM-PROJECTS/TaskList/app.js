@@ -17,6 +17,11 @@ function loadEventListeners(){
   // Add task event
   form.addEventListener('submit', addTask)
 
+  // the delete element is multiple and dynamic, so we MUST USE EVENT DELEGATION targeting taskList(UL)
+
+  // remove task event
+  taskList.addEventListener('click', removeTask)
+
 }
 
 
@@ -45,5 +50,17 @@ function addTask (e) {
   // clear input
   taskInput.value = ''
 
+  e.preventDefault()
+}
+
+// Add removeTask function
+function removeTask (e) {
+  /* Comment above: the delete element is multiple and dynamic, so we MUST USE EVENT DELEGATION targeting taskList(UL) */
+  // must target specific element in taskList(UL), namely the X icon
+  if (e.target.parentElement.classList.contains('delete-item')) {
+    if (confirm('Are you sure?')) {
+      e.target.parentElement.parentElement.remove()
+    }
+ }
   e.preventDefault()
 }
