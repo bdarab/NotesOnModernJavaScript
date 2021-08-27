@@ -16,7 +16,10 @@ const taskInput = document.querySelector('#task')
 loadEventListeners()
 
 // LOAD ALL EVENT LISTENER FUNCTION
-function loadEventListeners(){
+function loadEventListeners () {
+  // DOM load event
+  document.addEventListener('DOMContentLoaded', getTasks)
+
   // Add task event
   form.addEventListener('submit', addTask)
 
@@ -32,6 +35,38 @@ function loadEventListeners(){
   filter.addEventListener('keyup', filterTasks)
 }
 
+// GET TASKS FROM LOCAL STORAGE FUNCTION
+
+function getTasks () {
+  let tasks
+  if (localStorage.getItem('tasks') === null) {
+    tasks = []
+  } else {
+    tasks = JSON.parse(localStorage.getItem('tasks'))
+  }
+
+  console.log(tasks)
+  // Looping through tasks
+  tasks.forEach(function(task){
+    // Create li element
+    const li = document.createElement('li');
+    // Add class
+    li.className = 'collection-item';
+    // Create text node and append to li
+    li.appendChild(document.createTextNode(task));
+    // Create new link element
+    const link = document.createElement('a');
+    // Add class
+    link.className = 'delete-item secondary-content';
+    // Add icon html
+    link.innerHTML = '<i class="fa fa-remove"></i>';
+    // Append the link to li
+    li.appendChild(link);
+
+    // Append li to ul
+    taskList.appendChild(li);
+  });
+}
 
 // ADD TASK FUNCTION
 function addTask (e) {
@@ -55,11 +90,29 @@ function addTask (e) {
   // append li to ul
   taskList.appendChild(li)
 
+  // Store in localStorage
+  storeTaskInLocalStorage(taskInput.value)
+
   // clear input
   taskInput.value = ''
 
   e.preventDefault()
 }
+
+
+// STORE TASKS IN LOCAL STORAGE
+function storeTaskInLocalStorage (task) {
+  let tasks
+  if (localStorage.getItem('tasks') === null) {
+    tasks = []
+  } else {
+    tasks = JSON.parse(localStorage.getItem('tasks'))
+  }
+  tasks.push(task)
+
+  localStorage.setItem('tasks', JSON.stringify(tasks))
+}
+
 
 // REMOVE TASK FUNCTION
 function removeTask (e) {
@@ -68,9 +121,28 @@ function removeTask (e) {
   if (e.target.parentElement.classList.contains('delete-item')) {
     if (confirm('Are you sure?')) {
       e.target.parentElement.parentElement.remove()
+      // remove from local storage
+      removeTaskFromLocalStorage(e.target.parentElement.parentElement)
     }
  }
   e.preventDefault()
+}
+
+// REMOVE TASK FROM LOCAL STORAGE FUNCTION
+function removeTaskFromLocalStorage (taskItem) {
+  let tasks
+  if (localStorage.getItem('tasks') === null) {
+    tasks = []
+  } else {
+    tasks = JSON.parse(localStorage.getItem('tasks'))
+  }
+  // Looping over tasks for removing a specific task Item
+  tasks.forEach(function (task, index) {
+    if (taskItem.textContent === task) {
+      tasks.splice(index, 1)
+    }
+  })
+  localStorage.setItem('tasks', JSON.stringify(tasks))
 }
 
 // CLEAR TASKS FUNCTION
@@ -83,8 +155,16 @@ function clearTasks (e) {
     taskList.removeChild(taskList.firstChild)
 
     // ARTICLE: showing the difference between the 2 methods https://coderwall.com/p/nygghw/don-t-use-innerhtml-to-empty-dom-elements
-}
+  }
+  
+  // Clear tasks local storage
+  clearTasksFromLocalStorage()
   e.preventDefault()
+}
+
+// CLEAR ALL TASKS FROM LOCAL STORAGE FUNCTION
+function clearTasksFromLocalStorage () {
+  localStorage.clear()
 }
 
 // FILTER TASKS FUNCTION
